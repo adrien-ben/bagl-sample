@@ -23,7 +23,7 @@
           "fov": 60.0,
           "near": 0.1,
           "far": 1000.0,
-          "enableController": false
+          "enableController": true
         }
       ]
     },
@@ -223,6 +223,81 @@
       ]
     },
     {
+      "id": "point_light_5",
+      "tags": [
+        "point_lights"
+      ],
+      "transform": {
+        "translation": {
+          "x": -5.0,
+          "y": 0.5,
+          "z": 7.0
+        }
+      },
+      "components": [
+        {
+          "type": "point_light",
+          "intensity": 20.0,
+          "color": {
+            "r": 1.0,
+            "g": 0.0,
+            "b": 0.0
+          },
+          "radius": 3.0
+        }
+      ]
+    },
+    {
+      "id": "point_light_6",
+      "tags": [
+        "point_lights"
+      ],
+      "transform": {
+        "translation": {
+          "x": -5.0,
+          "y": 0.5,
+          "z": 5.0
+        }
+      },
+      "components": [
+        {
+          "type": "point_light",
+          "intensity": 20.0,
+          "color": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+          },
+          "radius": 3.0
+        }
+      ]
+    },
+    {
+      "id": "point_light_7",
+      "tags": [
+        "point_lights"
+      ],
+      "transform": {
+        "translation": {
+          "x": -3.0,
+          "y": 0.5,
+          "z": 6.0
+        }
+      },
+      "components": [
+        {
+          "type": "point_light",
+          "intensity": 20.0,
+          "color": {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 1.0
+          },
+          "radius": 3.0
+        }
+      ]
+    },
+    {
       "id": "spot_light_0",
       "tags": [
         "spot_lights"
@@ -295,7 +370,7 @@
       "components": [
         {
           "type": "environment",
-          "path": "classpath:/envmaps/flat.hdr"
+          "path": "classpath:/envmaps/beach.hdr"
         }
       ]
     }

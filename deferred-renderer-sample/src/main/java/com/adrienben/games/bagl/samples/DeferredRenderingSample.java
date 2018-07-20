@@ -6,21 +6,29 @@ import com.adrien.games.bagl.rendering.Spritebatch;
 import com.adrien.games.bagl.rendering.model.Mesh;
 import com.adrien.games.bagl.rendering.model.MeshFactory;
 import com.adrien.games.bagl.rendering.model.Model;
+import com.adrien.games.bagl.rendering.particles.Particle;
+import com.adrien.games.bagl.rendering.particles.ParticleEmitter;
 import com.adrien.games.bagl.rendering.renderer.PBRDeferredSceneRenderer;
 import com.adrien.games.bagl.rendering.text.Font;
 import com.adrien.games.bagl.rendering.text.Text;
 import com.adrien.games.bagl.rendering.text.TextRenderer;
+import com.adrien.games.bagl.rendering.texture.Texture;
+import com.adrien.games.bagl.rendering.texture.TextureParameters;
 import com.adrien.games.bagl.resource.scene.SceneLoader;
 import com.adrien.games.bagl.scene.GameObject;
 import com.adrien.games.bagl.scene.Scene;
 import com.adrien.games.bagl.scene.components.ModelComponent;
+import com.adrien.games.bagl.scene.components.ParticleComponent;
 import com.adrien.games.bagl.scene.components.PointLightComponent;
 import com.adrien.games.bagl.scene.components.SpotLightComponent;
-import com.adrien.games.bagl.utils.FileUtils;
 import com.adrien.games.bagl.utils.MathUtils;
+import com.adrien.games.bagl.utils.ResourcePath;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.function.Consumer;
 
 public class DeferredRenderingSample {
 
@@ -55,6 +63,9 @@ public class DeferredRenderingSample {
 
         private Font font;
 
+        private ParticleEmitter smokeEmitter;
+        private Texture smokeTexture;
+
         private Scene scene;
         private Mesh pointBulb;
         private Mesh spotBulb;
@@ -77,9 +88,16 @@ public class DeferredRenderingSample {
             textRenderer = new TextRenderer();
             renderer = new PBRDeferredSceneRenderer();
 
-            font = new Font(FileUtils.getResourceAbsolutePath("/fonts/segoe/segoe.fnt"));
+            font = new Font(ResourcePath.get("classpath:/fonts/segoe/segoe.fnt"));
 
-            scene = new SceneLoader().load(FileUtils.getResourceAbsolutePath("/scenes/demo_scene.json"));
+            final Consumer<Particle> smokeInitializer = p -> p.reset(new Vector3f(),
+                    new Vector3f((float) Math.random() * 2 - 1, 0.8f, (float) Math.random() * 2 - 1),
+                    (float) Math.random() * 0.5f + 0.5f, (float) Math.random() * 0.2f + 0.8f, Color.DARK_GRAY, Color.BLACK,
+                    (float) Math.random() * 0.4f + 2.8f);
+            smokeTexture = Texture.fromFile(ResourcePath.get("classpath:/smoke.png"), true, TextureParameters.builder());
+            smokeEmitter = ParticleEmitter.builder().texture(smokeTexture).rate(0.05f).batchSize(5).initializer(smokeInitializer).build();
+
+            scene = new SceneLoader().load(ResourcePath.get("classpath:/scenes/demo_scene.json").getAbsolutePath());
             loadMeshes();
             initScene();
 
@@ -94,6 +112,7 @@ public class DeferredRenderingSample {
             textRenderer.destroy();
             renderer.destroy();
             font.destroy();
+            smokeTexture.destroy();
             scene.destroy();
             pointBulb.destroy();
             spotBulb.destroy();
@@ -108,18 +127,23 @@ public class DeferredRenderingSample {
             // Add debug models for lights
             scene.getObjectsByTag("point_lights").forEach(parent ->
                     parent.getComponentOfType(PointLightComponent.class).ifPresent(point ->
-                            createBulb(parent, point.getLight().getColor(), pointBulb)));
+                            createBulb(parent, point.getLight().getColor(), point.getLight().getIntensity(), pointBulb)));
 
             scene.getObjectsByTag("spot_lights").forEach(parent ->
                     parent.getComponentOfType(SpotLightComponent.class).ifPresent(spot ->
-                            createBulb(parent, spot.getLight().getColor(), spotBulb)));
+                            createBulb(parent, spot.getLight().getColor(), spot.getLight().getIntensity(), spotBulb)));
+
+            // Add particles
+            final var emitterObj = scene.getRoot().createChild("smoke");
+            emitterObj.addComponent(new ParticleComponent(this.smokeEmitter));
+            emitterObj.getLocalTransform().setTranslation(new Vector3f(-4.0f, 0.5f, 6.0f));
         }
 
-        private GameObject createBulb(final GameObject parent, final Color color, final Mesh bulbModel) {
+        private GameObject createBulb(final GameObject parent, final Color color, final float intensity, final Mesh bulbModel) {
             final var modelObject = parent.createChild("bulb_" + parent.getId(), "debug");
             modelObject.getLocalTransform().setRotation(new Quaternionf().rotationX(MathUtils.toRadians(-90f)));
 
-            final var material = Material.builder().emissive(color).emissiveIntensity(10f).build();
+            final var material = Material.builder().emissive(color).emissiveIntensity(intensity).build();
             final var model = new Model();
             model.addNode().addMesh(bulbModel, material);
             final var modelComponent = new ModelComponent(model);
@@ -130,11 +154,30 @@ public class DeferredRenderingSample {
         @Override
         public void update(final Time time) {
             scene.update(time);
+            moveSmoke(time);
             rotateSun(time);
             toggleInstructions();
             toggleDebug();
             selectDisplayMode();
             selectCameraMode();
+        }
+
+        private void moveSmoke(final Time time) {
+            final var smokeObj = scene.getObjectById("smoke").orElseThrow();
+            final var movement = new Vector3f();
+            if (Input.isKeyPressed(GLFW.GLFW_KEY_UP) && !Input.isKeyPressed(GLFW.GLFW_KEY_DOWN)) {
+                movement.add(0, 0, -1);
+            } else if (!Input.isKeyPressed(GLFW.GLFW_KEY_UP) && Input.isKeyPressed(GLFW.GLFW_KEY_DOWN)) {
+                movement.add(0, 0, 1);
+            }
+
+            if (Input.isKeyPressed(GLFW.GLFW_KEY_LEFT) && !Input.isKeyPressed(GLFW.GLFW_KEY_RIGHT)) {
+                movement.add(-1, 0, 0);
+            } else if (!Input.isKeyPressed(GLFW.GLFW_KEY_LEFT) && Input.isKeyPressed(GLFW.GLFW_KEY_RIGHT)) {
+                movement.add(1, 0, 0);
+            }
+
+            smokeObj.getLocalTransform().setTranslation(new Vector3f(smokeObj.getLocalTransform().getTranslation()).add(movement.mul(3 * time.getElapsedTime())));
         }
 
         private void rotateSun(final Time time) {

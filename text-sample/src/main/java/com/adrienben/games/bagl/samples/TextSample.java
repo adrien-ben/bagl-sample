@@ -7,7 +7,7 @@ import com.adrien.games.bagl.core.Time;
 import com.adrien.games.bagl.rendering.text.Font;
 import com.adrien.games.bagl.rendering.text.Text;
 import com.adrien.games.bagl.rendering.text.TextRenderer;
-import com.adrien.games.bagl.utils.FileUtils;
+import com.adrien.games.bagl.utils.ResourcePath;
 
 /**
  * Text sample. Implementation of the signed distance field algorithm from Valve.
@@ -28,8 +28,8 @@ public class TextSample implements Game {
     @Override
     public void init() {
         Engine.setClearColor(Color.CORNFLOWER_BLUE);
-        arial = new Font(FileUtils.getResourceAbsolutePath("/fonts/arial/arial.fnt"));
-        segoe = new Font(FileUtils.getResourceAbsolutePath("/fonts/segoe/segoe.fnt"));
+        arial = new Font(ResourcePath.get("classpath:/fonts/arial/arial.fnt"));
+        segoe = new Font(ResourcePath.get("classpath:/fonts/segoe/segoe.fnt"));
         renderer = new TextRenderer();
         text = Text.create("|Hello Potatoe World", segoe, Color.BLACK);
     }

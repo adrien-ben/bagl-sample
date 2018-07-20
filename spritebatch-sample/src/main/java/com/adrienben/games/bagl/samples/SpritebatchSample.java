@@ -5,7 +5,7 @@ import com.adrien.games.bagl.rendering.BlendMode;
 import com.adrien.games.bagl.rendering.Spritebatch;
 import com.adrien.games.bagl.rendering.texture.Texture;
 import com.adrien.games.bagl.rendering.texture.TextureParameters;
-import com.adrien.games.bagl.utils.FileUtils;
+import com.adrien.games.bagl.utils.ResourcePath;
 import org.joml.Vector2f;
 
 import java.util.Random;
@@ -35,7 +35,7 @@ public class SpritebatchSample {
 
             this.spritebatch = new Spritebatch(1024, this.width, this.height);
 
-            this.texture = Texture.fromFile(FileUtils.getResourceAbsolutePath("/default.png"), true, TextureParameters.builder());
+            this.texture = Texture.fromFile(ResourcePath.get("classpath:/default.png"), true, TextureParameters.builder());
 
             final var r = new Random();
             for (var i = 0; i < SPRITE_COUNT; i++) {
