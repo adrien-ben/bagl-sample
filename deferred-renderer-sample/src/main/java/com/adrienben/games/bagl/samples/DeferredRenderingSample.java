@@ -97,7 +97,7 @@ public class DeferredRenderingSample {
             smokeTexture = Texture.fromFile(ResourcePath.get("classpath:/smoke.png"), true, TextureParameters.builder());
             smokeEmitter = ParticleEmitter.builder().texture(smokeTexture).rate(0.05f).batchSize(5).initializer(smokeInitializer).build();
 
-            scene = new SceneLoader().load(ResourcePath.get("classpath:/scenes/demo_scene.json").getAbsolutePath());
+            scene = new SceneLoader().load(ResourcePath.get("classpath:/scenes/demo_scene.json"));
             loadMeshes();
             initScene();
 
