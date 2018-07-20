@@ -154,30 +154,11 @@ public class DeferredRenderingSample {
         @Override
         public void update(final Time time) {
             scene.update(time);
-            moveSmoke(time);
             rotateSun(time);
             toggleInstructions();
             toggleDebug();
             selectDisplayMode();
             selectCameraMode();
-        }
-
-        private void moveSmoke(final Time time) {
-            final var smokeObj = scene.getObjectById("smoke").orElseThrow();
-            final var movement = new Vector3f();
-            if (Input.isKeyPressed(GLFW.GLFW_KEY_UP) && !Input.isKeyPressed(GLFW.GLFW_KEY_DOWN)) {
-                movement.add(0, 0, -1);
-            } else if (!Input.isKeyPressed(GLFW.GLFW_KEY_UP) && Input.isKeyPressed(GLFW.GLFW_KEY_DOWN)) {
-                movement.add(0, 0, 1);
-            }
-
-            if (Input.isKeyPressed(GLFW.GLFW_KEY_LEFT) && !Input.isKeyPressed(GLFW.GLFW_KEY_RIGHT)) {
-                movement.add(-1, 0, 0);
-            } else if (!Input.isKeyPressed(GLFW.GLFW_KEY_LEFT) && Input.isKeyPressed(GLFW.GLFW_KEY_RIGHT)) {
-                movement.add(1, 0, 0);
-            }
-
-            smokeObj.getLocalTransform().setTranslation(new Vector3f(smokeObj.getLocalTransform().getTranslation()).add(movement.mul(3 * time.getElapsedTime())));
         }
 
         private void rotateSun(final Time time) {
