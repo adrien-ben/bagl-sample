@@ -2,11 +2,12 @@ package com.adrienben.games.bagl.samples;
 
 import com.adrien.games.bagl.core.*;
 import com.adrien.games.bagl.rendering.Material;
-import com.adrien.games.bagl.rendering.Spritebatch;
 import com.adrien.games.bagl.rendering.model.Mesh;
 import com.adrien.games.bagl.rendering.model.MeshFactory;
 import com.adrien.games.bagl.rendering.model.Model;
 import com.adrien.games.bagl.rendering.renderer.PBRDeferredSceneRenderer;
+import com.adrien.games.bagl.rendering.sprite.Sprite;
+import com.adrien.games.bagl.rendering.sprite.Spritebatch;
 import com.adrien.games.bagl.rendering.text.Font;
 import com.adrien.games.bagl.rendering.text.Text;
 import com.adrien.games.bagl.rendering.text.TextRenderer;
@@ -19,7 +20,6 @@ import com.adrien.games.bagl.scene.components.SpotLightComponent;
 import com.adrien.games.bagl.utils.MathUtils;
 import com.adrien.games.bagl.utils.ResourcePath;
 import org.joml.Quaternionf;
-import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
 
 public class DeferredRenderingSample {
@@ -65,6 +65,12 @@ public class DeferredRenderingSample {
         private Spritebatch spritebatch;
 
         private DisplayMode displayMode = DisplayMode.SCENE;
+        private Sprite albedoSprite;
+        private Sprite normalSprite;
+        private Sprite depthSprite;
+        private Sprite emissiveSprite;
+        private Sprite shadowSprite;
+        private Sprite preProcessSprite;
 
         private boolean displayInstructions = false;
         private boolean fpsCamera = false;
@@ -81,12 +87,19 @@ public class DeferredRenderingSample {
 
             scene = new SceneLoader().load(ResourcePath.get("classpath:/scenes/demo_scene.json"));
             loadMeshes();
-            initScene();
+            addBuldModelToLights();
 
             toggleInstructionsText = Text.create("Toggle instructions : F1", font, 0.01f, 0.97f, 0.03f, Color.BLACK);
             instructionsText = Text.create(INSTRUCTIONS, font, 0.01f, 0.94f, 0.03f, Color.BLACK);
 
             spritebatch = new Spritebatch(1024, width, height);
+
+            albedoSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(0)).build();
+            normalSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(1)).build();
+            depthSprite = Sprite.builder().texture(renderer.getGBuffer().getDepthTexture()).build();
+            emissiveSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(2)).build();
+            shadowSprite = Sprite.builder().texture(renderer.getShadowBuffer().getDepthTexture()).width(MathUtils.min(width, height)).height(MathUtils.min(width, height)).build();
+            preProcessSprite = Sprite.builder().texture(renderer.getFinalBuffer().getColorTexture(0)).build();
         }
 
         @Override
@@ -104,8 +117,7 @@ public class DeferredRenderingSample {
             spotBulb = MeshFactory.createCylinder(0.1f, 0.065f, 0.2f, 12);
         }
 
-        private void initScene() {
-            // Add debug models for lights
+        private void addBuldModelToLights() {
             scene.getObjectsByTag("point_lights").forEach(parent ->
                     parent.getComponentOfType(PointLightComponent.class).ifPresent(point ->
                             createBulb(parent, point.getLight().getColor(), point.getLight().getIntensity(), pointBulb)));
@@ -199,17 +211,17 @@ public class DeferredRenderingSample {
         private void renderDisplayMode() {
             spritebatch.start();
             if (displayMode == DisplayMode.ALBEDO) {
-                spritebatch.draw(renderer.getGBuffer().getColorTexture(0), new Vector2f());
+                spritebatch.render(albedoSprite);
             } else if (displayMode == DisplayMode.NORMALS) {
-                spritebatch.draw(renderer.getGBuffer().getColorTexture(1), new Vector2f());
+                spritebatch.render(normalSprite);
             } else if (displayMode == DisplayMode.DEPTH) {
-                spritebatch.draw(renderer.getGBuffer().getDepthTexture(), new Vector2f());
+                spritebatch.render(depthSprite);
             } else if (displayMode == DisplayMode.EMISSIVE) {
-                spritebatch.draw(renderer.getGBuffer().getColorTexture(2), new Vector2f());
+                spritebatch.render(emissiveSprite);
             } else if (displayMode == DisplayMode.SHADOW) {
-                spritebatch.draw(renderer.getShadowBuffer().getDepthTexture(), new Vector2f(), MathUtils.min(width, height), MathUtils.min(width, height));
+                spritebatch.render(shadowSprite);
             } else if (displayMode == DisplayMode.UNPROCESSED) {
-                spritebatch.draw(renderer.getFinalBuffer().getColorTexture(0), new Vector2f());
+                spritebatch.render(preProcessSprite);
             }
             spritebatch.end();
         }

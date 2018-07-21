@@ -2,12 +2,15 @@ package com.adrienben.games.bagl.samples;
 
 import com.adrien.games.bagl.core.*;
 import com.adrien.games.bagl.rendering.BlendMode;
-import com.adrien.games.bagl.rendering.Spritebatch;
+import com.adrien.games.bagl.rendering.sprite.Sprite;
+import com.adrien.games.bagl.rendering.sprite.Spritebatch;
 import com.adrien.games.bagl.rendering.texture.Texture;
 import com.adrien.games.bagl.rendering.texture.TextureParameters;
 import com.adrien.games.bagl.utils.ResourcePath;
 import org.joml.Vector2f;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class SpritebatchSample {
@@ -20,9 +23,7 @@ public class SpritebatchSample {
 
         private static final String TITLE = "Spritebatch";
         private static final int SPRITE_COUNT = 10000;
-        private final Vector2f[] positions = new Vector2f[SPRITE_COUNT];
-        private final int[] sizes = new int[SPRITE_COUNT];
-        private final float[] rotations = new float[SPRITE_COUNT];
+        private final List<Sprite> sprites = new ArrayList<>();
         private int width;
         private int height;
         private Texture texture;
@@ -39,9 +40,15 @@ public class SpritebatchSample {
 
             final var r = new Random();
             for (var i = 0; i < SPRITE_COUNT; i++) {
-                this.positions[i] = new Vector2f(r.nextFloat() * this.width, r.nextFloat() * this.height);
-                this.sizes[i] = r.nextInt(32) + 32;
-                this.rotations[i] = r.nextFloat() * 360;
+                final var size = r.nextInt(32) + 32;
+                final var sprite = Sprite.builder()
+                        .texture(texture)
+                        .position(new Vector2f(r.nextFloat() * this.width, r.nextFloat() * this.height))
+                        .width(size)
+                        .height(size)
+                        .rotation(r.nextFloat() * 360)
+                        .build();
+                sprites.add(sprite);
             }
 
             Engine.setBlendMode(BlendMode.TRANSPARENCY);
@@ -50,17 +57,13 @@ public class SpritebatchSample {
 
         @Override
         public void update(Time time) {
-            for (var i = 0; i < SPRITE_COUNT; i++) {
-                this.rotations[i] += time.getElapsedTime() * 50;
-            }
+            sprites.forEach(sprite -> sprite.setRotation(sprite.getRotation() + time.getElapsedTime() * 50));
         }
 
         @Override
         public void render() {
             this.spritebatch.start();
-            for (var i = 0; i < SPRITE_COUNT; i++) {
-                this.spritebatch.draw(this.texture, this.positions[i], this.sizes[i], this.sizes[i], this.rotations[i], Color.WHITE);
-            }
+            this.sprites.forEach(spritebatch::render);
             this.spritebatch.end();
         }
 
