@@ -42,7 +42,7 @@
       "components": [
         {
           "type": "model",
-          "path": "classpath:/models/floor/floor.gltf"
+          "id": "floor"
         }
       ],
       "children": [
@@ -63,7 +63,7 @@
           "components": [
             {
               "type": "model",
-              "path": "classpath:/models/helmet/helmet.glb"
+              "id": "helmet"
             }
           ]
         }
@@ -386,7 +386,7 @@
       "components": [
         {
           "type": "particles",
-          "texture": "classpath:/smoke.png",
+          "textureId": "smoke",
           "startColor": {
             "r": 0.66,
             "g": 0.66,

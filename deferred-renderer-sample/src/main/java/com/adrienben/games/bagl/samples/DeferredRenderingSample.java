@@ -11,14 +11,12 @@ import com.adrien.games.bagl.rendering.sprite.Spritebatch;
 import com.adrien.games.bagl.rendering.text.Font;
 import com.adrien.games.bagl.rendering.text.Text;
 import com.adrien.games.bagl.rendering.text.TextRenderer;
-import com.adrien.games.bagl.resource.scene.SceneLoader;
 import com.adrien.games.bagl.scene.GameObject;
 import com.adrien.games.bagl.scene.Scene;
 import com.adrien.games.bagl.scene.components.ModelComponent;
 import com.adrien.games.bagl.scene.components.PointLightComponent;
 import com.adrien.games.bagl.scene.components.SpotLightComponent;
 import com.adrien.games.bagl.utils.MathUtils;
-import com.adrien.games.bagl.utils.ResourcePath;
 import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 
@@ -32,7 +30,7 @@ public class DeferredRenderingSample {
         SCENE, ALBEDO, NORMALS, DEPTH, EMISSIVE, SHADOW, UNPROCESSED
     }
 
-    private static final class TestGame implements Game {
+    private static final class TestGame extends DefaultGame {
 
         private static final String TITLE = "Deferred Rendering";
 
@@ -77,15 +75,17 @@ public class DeferredRenderingSample {
 
         @Override
         public void init() {
+            super.init();
+
             width = Configuration.getInstance().getXResolution();
             height = Configuration.getInstance().getYResolution();
 
             textRenderer = new TextRenderer();
             renderer = new PBRDeferredSceneRenderer();
 
-            font = new Font(ResourcePath.get("classpath:/fonts/segoe/segoe.fnt"));
+            font = getAssetStore().getAsset("segoe", Font.class);
 
-            scene = new SceneLoader().load(ResourcePath.get("classpath:/scenes/demo_scene.json"));
+            scene = getAssetStore().getAsset("main_scene", Scene.class);
             loadMeshes();
             addBuldModelToLights();
 
@@ -104,10 +104,9 @@ public class DeferredRenderingSample {
 
         @Override
         public void destroy() {
+            super.destroy();
             textRenderer.destroy();
             renderer.destroy();
-            font.destroy();
-            scene.destroy();
             pointBulb.destroy();
             spotBulb.destroy();
         }
@@ -127,16 +126,15 @@ public class DeferredRenderingSample {
                             createBulb(parent, spot.getLight().getColor(), spot.getLight().getIntensity(), spotBulb)));
         }
 
-        private GameObject createBulb(final GameObject parent, final Color color, final float intensity, final Mesh bulbModel) {
+        private void createBulb(final GameObject parent, final Color color, final float intensity, final Mesh bulbModel) {
             final var modelObject = parent.createChild("bulb_" + parent.getId(), "debug");
             modelObject.getLocalTransform().setRotation(new Quaternionf().rotationX(MathUtils.toRadians(-90f)));
 
             final var material = Material.builder().emissive(color).emissiveIntensity(intensity).build();
             final var model = new Model();
             model.addNode().addMesh(bulbModel, material);
-            final var modelComponent = new ModelComponent(model);
+            final var modelComponent = new ModelComponent(model, false);
             modelObject.addComponent(modelComponent);
-            return modelObject;
         }
 
         @Override

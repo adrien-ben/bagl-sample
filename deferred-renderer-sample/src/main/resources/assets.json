@@ -1,0 +1,29 @@
+{
+  "assets": [
+    {
+      "id": "main_scene",
+      "type": "SCENE",
+      "path": "classpath:/scenes/demo_scene.json"
+    },
+    {
+      "id": "segoe",
+      "type": "FONT",
+      "path": "classpath:/fonts/segoe/segoe.fnt"
+    },
+    {
+      "id": "helmet",
+      "type": "MODEL",
+      "path": "classpath:/models/helmet/helmet.glb"
+    },
+    {
+      "id": "floor",
+      "type": "MODEL",
+      "path": "classpath:/models/floor/floor.gltf"
+    },
+    {
+      "id": "smoke",
+      "type": "TEXTURE",
+      "path": "classpath:/smoke.png"
+    }
+  ]
+}
