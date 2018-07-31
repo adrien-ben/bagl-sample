@@ -1,13 +1,14 @@
 package com.adrienben.games.bagl.samples;
 
-import com.adrien.games.bagl.core.Color;
-import com.adrien.games.bagl.core.Engine;
-import com.adrien.games.bagl.core.Game;
-import com.adrien.games.bagl.core.Time;
-import com.adrien.games.bagl.rendering.text.Font;
-import com.adrien.games.bagl.rendering.text.Text;
-import com.adrien.games.bagl.rendering.text.TextRenderer;
-import com.adrien.games.bagl.utils.ResourcePath;
+import com.adrienben.games.bagl.core.Color;
+import com.adrienben.games.bagl.core.io.ResourcePath;
+import com.adrienben.games.bagl.engine.Engine;
+import com.adrienben.games.bagl.engine.Time;
+import com.adrienben.games.bagl.engine.game.Game;
+import com.adrienben.games.bagl.engine.rendering.text.Font;
+import com.adrienben.games.bagl.engine.rendering.text.Text;
+import com.adrienben.games.bagl.engine.rendering.text.TextRenderer;
+import com.adrienben.games.bagl.opengl.OpenGL;
 
 /**
  * Text sample. Implementation of the signed distance field algorithm from Valve.
@@ -27,7 +28,7 @@ public class TextSample implements Game {
 
     @Override
     public void init() {
-        Engine.setClearColor(Color.CORNFLOWER_BLUE);
+        OpenGL.setClearColor(Color.CORNFLOWER_BLUE);
         arial = new Font(ResourcePath.get("classpath:/fonts/arial/arial.fnt"));
         segoe = new Font(ResourcePath.get("classpath:/fonts/segoe/segoe.fnt"));
         renderer = new TextRenderer();

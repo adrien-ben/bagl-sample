@@ -1,12 +1,17 @@
 package com.adrienben.games.bagl.samples;
 
-import com.adrien.games.bagl.core.*;
-import com.adrien.games.bagl.rendering.BlendMode;
-import com.adrien.games.bagl.rendering.sprite.Sprite;
-import com.adrien.games.bagl.rendering.sprite.Spritebatch;
-import com.adrien.games.bagl.rendering.texture.Texture;
-import com.adrien.games.bagl.rendering.texture.TextureParameters;
-import com.adrien.games.bagl.utils.ResourcePath;
+import com.adrienben.games.bagl.core.Color;
+import com.adrienben.games.bagl.core.io.ResourcePath;
+import com.adrienben.games.bagl.engine.Configuration;
+import com.adrienben.games.bagl.engine.Engine;
+import com.adrienben.games.bagl.engine.Time;
+import com.adrienben.games.bagl.engine.game.Game;
+import com.adrienben.games.bagl.engine.rendering.sprite.Sprite;
+import com.adrienben.games.bagl.engine.rendering.sprite.Spritebatch;
+import com.adrienben.games.bagl.opengl.BlendMode;
+import com.adrienben.games.bagl.opengl.OpenGL;
+import com.adrienben.games.bagl.opengl.texture.Texture;
+import com.adrienben.games.bagl.opengl.texture.TextureParameters;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -51,8 +56,8 @@ public class SpritebatchSample {
                 sprites.add(sprite);
             }
 
-            Engine.setBlendMode(BlendMode.TRANSPARENCY);
-            Engine.setClearColor(Color.CORNFLOWER_BLUE);
+            OpenGL.setBlendMode(BlendMode.TRANSPARENCY);
+            OpenGL.setClearColor(Color.CORNFLOWER_BLUE);
         }
 
         @Override

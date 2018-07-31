@@ -1,11 +1,12 @@
 package com.adrienben.games.bagl.samples;
 
-import com.adrien.games.bagl.core.Color;
-import com.adrien.games.bagl.core.Engine;
-import com.adrien.games.bagl.core.Game;
-import com.adrien.games.bagl.core.Time;
-import com.adrien.games.bagl.rendering.BlendMode;
-import com.adrien.games.bagl.rendering.shape.UIRenderer;
+import com.adrienben.games.bagl.core.Color;
+import com.adrienben.games.bagl.engine.Engine;
+import com.adrienben.games.bagl.engine.Time;
+import com.adrienben.games.bagl.engine.game.Game;
+import com.adrienben.games.bagl.engine.rendering.shape.UIRenderer;
+import com.adrienben.games.bagl.opengl.BlendMode;
+import com.adrienben.games.bagl.opengl.OpenGL;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -33,8 +34,8 @@ public class UIRenderingSample implements Game {
 
     @Override
     public void init() {
-        Engine.setClearColor(Color.CORNFLOWER_BLUE);
-        Engine.setBlendMode(BlendMode.TRANSPARENCY);
+        OpenGL.setClearColor(Color.CORNFLOWER_BLUE);
+        OpenGL.setBlendMode(BlendMode.TRANSPARENCY);
         this.renderer = new UIRenderer();
         this.positions = new ArrayList<>();
         this.sizes = new ArrayList<>();

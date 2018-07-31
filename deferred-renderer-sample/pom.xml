@@ -5,11 +5,18 @@
     <parent>
         <artifactId>bagl-samples</artifactId>
         <groupId>com.adrienben.games</groupId>
-        <version>0.0.1</version>
+        <version>0.0.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>deferred-renderer-sample</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.adrienben.games</groupId>
+            <artifactId>bagl-deferred</artifactId>
+            <version>${bagl.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
