@@ -1,5 +1,4 @@
 module bagl.deferred.renderer.sample {
-    requires com.adrienben.games.bagl.engine;
     requires com.adrienben.games.bagl.deferred;
 
     opens envmaps;
