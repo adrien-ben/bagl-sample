@@ -1,6 +1,7 @@
 package com.adrienben.games.bagl.samples;
 
 import com.adrienben.games.bagl.core.Color;
+import com.adrienben.games.bagl.core.io.ResourcePath;
 import com.adrienben.games.bagl.core.math.MathUtils;
 import com.adrienben.games.bagl.deferred.PBRDeferredSceneRenderer;
 import com.adrienben.games.bagl.engine.*;
@@ -16,11 +17,15 @@ import com.adrienben.games.bagl.engine.rendering.text.Text;
 import com.adrienben.games.bagl.engine.rendering.text.TextRenderer;
 import com.adrienben.games.bagl.engine.scene.GameObject;
 import com.adrienben.games.bagl.engine.scene.Scene;
+import com.adrienben.games.bagl.engine.scene.components.CameraComponent;
 import com.adrienben.games.bagl.engine.scene.components.ModelComponent;
 import com.adrienben.games.bagl.engine.scene.components.PointLightComponent;
 import com.adrienben.games.bagl.engine.scene.components.SpotLightComponent;
+import com.adrienben.games.bagl.opengl.shader.Shader;
 import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.List;
 
 public class DeferredRenderingSample {
 
@@ -63,14 +68,16 @@ public class DeferredRenderingSample {
         private Text instructionsText;
 
         private Spritebatch spritebatch;
+        private Shader depthBufferViewerShader;
 
         private DisplayMode displayMode = DisplayMode.SCENE;
         private Sprite albedoSprite;
         private Sprite normalSprite;
         private Sprite depthSprite;
         private Sprite emissiveSprite;
-        private Sprite shadowSprite;
+        private List<Sprite> shadowMaps;
         private Sprite preProcessSprite;
+        private int shadowMapIndex;
 
         private boolean displayInstructions = false;
         private boolean fpsCamera = false;
@@ -95,12 +102,19 @@ public class DeferredRenderingSample {
             instructionsText = Text.create(INSTRUCTIONS, font, 0.01f, 0.94f, 0.03f, Color.BLACK);
 
             spritebatch = new Spritebatch(1024, width, height);
+            depthBufferViewerShader = Shader.builder().vertexPath(ResourcePath.get("classpath:/shaders/sprite/sprite.vert"))
+                    .fragmentPath(ResourcePath.get("classpath:/depth_buffer_viewer.frag")).build();
 
             albedoSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(0)).build();
             normalSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(1)).build();
             depthSprite = Sprite.builder().texture(renderer.getGBuffer().getDepthTexture()).build();
             emissiveSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(2)).build();
-            shadowSprite = Sprite.builder().texture(renderer.getShadowBuffer().getDepthTexture()).width(MathUtils.min(width, height)).height(MathUtils.min(width, height)).build();
+            shadowMaps = List.of(
+                    Sprite.builder().texture(renderer.getCSMBuffer().get(0).getDepthTexture()).width(width).height(height).build(),
+                    Sprite.builder().texture(renderer.getCSMBuffer().get(1).getDepthTexture()).width(width).height(height).build(),
+                    Sprite.builder().texture(renderer.getCSMBuffer().get(2).getDepthTexture()).width(width).height(height).build(),
+                    Sprite.builder().texture(renderer.getCSMBuffer().get(3).getDepthTexture()).width(width).height(height).build()
+            );
             preProcessSprite = Sprite.builder().texture(renderer.getFinalBuffer().getColorTexture(0)).build();
         }
 
@@ -111,6 +125,8 @@ public class DeferredRenderingSample {
             renderer.destroy();
             pointBulb.destroy();
             spotBulb.destroy();
+            spritebatch.destroy();
+            depthBufferViewerShader.destroy();
         }
 
         private void loadMeshes() {
@@ -184,7 +200,12 @@ public class DeferredRenderingSample {
             } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_F6)) {
                 displayMode = DisplayMode.EMISSIVE;
             } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_F7)) {
-                displayMode = DisplayMode.SHADOW;
+                if (displayMode == DisplayMode.SHADOW) {
+                    shadowMapIndex = (shadowMapIndex + 1) % 4;
+                } else {
+                    displayMode = DisplayMode.SHADOW;
+                    shadowMapIndex = 0;
+                }
             } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_F8)) {
                 displayMode = DisplayMode.UNPROCESSED;
             }
@@ -214,16 +235,29 @@ public class DeferredRenderingSample {
                 spritebatch.render(albedoSprite);
             } else if (displayMode == DisplayMode.NORMALS) {
                 spritebatch.render(normalSprite);
-            } else if (displayMode == DisplayMode.DEPTH) {
-                spritebatch.render(depthSprite);
             } else if (displayMode == DisplayMode.EMISSIVE) {
                 spritebatch.render(emissiveSprite);
-            } else if (displayMode == DisplayMode.SHADOW) {
-                spritebatch.render(shadowSprite);
             } else if (displayMode == DisplayMode.UNPROCESSED) {
                 spritebatch.render(preProcessSprite);
+            } else if (displayMode == DisplayMode.SHADOW) {
+                spritebatch.render(shadowMaps.get(shadowMapIndex));
             }
             spritebatch.end();
+
+            spritebatch.start(depthBufferViewerShader);
+            if (displayMode == DisplayMode.DEPTH) {
+                final var camera = scene.getObjectById("camera").orElseThrow().getComponentOfType(CameraComponent.class).orElseThrow().getCamera();
+                setUniformsForDepthBufferViewer(camera.getzNear(), camera.getzFar());
+                spritebatch.render(depthSprite);
+            }
+            spritebatch.end();
+        }
+
+        private void setUniformsForDepthBufferViewer(final float minDepth, final float maxDepth) {
+            depthBufferViewerShader.bind();
+            depthBufferViewerShader.setUniform("minDepth", minDepth);
+            depthBufferViewerShader.setUniform("maxDepth", maxDepth);
+            Shader.unbind();
         }
 
         private void renderInstructions() {
