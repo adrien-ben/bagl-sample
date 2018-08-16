@@ -10,7 +10,7 @@ import com.adrienben.games.bagl.engine.rendering.sprite.Sprite;
 import com.adrienben.games.bagl.engine.rendering.sprite.Spritebatch;
 import com.adrienben.games.bagl.opengl.BlendMode;
 import com.adrienben.games.bagl.opengl.OpenGL;
-import com.adrienben.games.bagl.opengl.texture.Texture;
+import com.adrienben.games.bagl.opengl.texture.Texture2D;
 import com.adrienben.games.bagl.opengl.texture.TextureParameters;
 import org.joml.Vector2f;
 
@@ -31,7 +31,7 @@ public class SpritebatchSample {
         private final List<Sprite> sprites = new ArrayList<>();
         private int width;
         private int height;
-        private Texture texture;
+        private Texture2D texture;
         private Spritebatch spritebatch;
 
         @Override
@@ -41,7 +41,7 @@ public class SpritebatchSample {
 
             this.spritebatch = new Spritebatch(1024, this.width, this.height);
 
-            this.texture = Texture.fromFile(ResourcePath.get("classpath:/default.png"), true, TextureParameters.builder());
+            this.texture = Texture2D.fromFile(ResourcePath.get("classpath:/default.png"), true, TextureParameters.builder());
 
             final var r = new Random();
             for (var i = 0; i < SPRITE_COUNT; i++) {
