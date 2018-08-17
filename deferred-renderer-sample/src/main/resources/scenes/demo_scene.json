@@ -20,9 +20,9 @@
       "components": [
         {
           "type": "camera",
-          "fov": 60.0,
+          "fov": 90.0,
           "near": 0.1,
-          "far": 1000.0,
+          "far": 100.0,
           "enableController": true
         }
       ]
@@ -88,7 +88,7 @@
       "components": [
         {
           "type": "directional_light",
-          "intensity": 0.8,
+          "intensity": 4.8,
           "color": {
             "r": 1.0,
             "g": 1.0,

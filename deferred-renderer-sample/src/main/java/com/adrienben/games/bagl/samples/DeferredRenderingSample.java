@@ -46,7 +46,7 @@ public class DeferredRenderingSample {
                 + "Display Normals : F4\n"
                 + "Display Depth : F5\n"
                 + "Display Emissive : F6\n"
-                + "Display Shadow Map : F7\n"
+                + "Display Shadow Maps : F7\n"
                 + "Display Scene before post process : F8\n"
                 + "Move camera : Z, Q, S, D, LCTRL, SPACE\n"
                 + "Advance time: 1, 2\n"
