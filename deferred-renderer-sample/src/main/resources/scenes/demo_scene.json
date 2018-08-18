@@ -20,7 +20,7 @@
       "components": [
         {
           "type": "camera",
-          "fov": 90.0,
+          "fov": 70.0,
           "near": 0.1,
           "far": 100.0,
           "enableController": true
@@ -71,6 +71,9 @@
     },
     {
       "id": "sun",
+      "tags": [
+        "light"
+      ],
       "transform": {
         "rotations": [
           {
@@ -100,7 +103,8 @@
     {
       "id": "point_light_0",
       "tags": [
-        "point_lights"
+        "point_light",
+        "light"
       ],
       "transform": {
         "translation": {
@@ -125,7 +129,8 @@
     {
       "id": "point_light_1",
       "tags": [
-        "point_lights"
+        "point_light",
+        "light"
       ],
       "transform": {
         "translation": {
@@ -150,7 +155,8 @@
     {
       "id": "point_light_2",
       "tags": [
-        "point_lights"
+        "point_light",
+        "light"
       ],
       "transform": {
         "translation": {
@@ -175,7 +181,8 @@
     {
       "id": "point_light_3",
       "tags": [
-        "point_lights"
+        "point_light",
+        "light"
       ],
       "transform": {
         "translation": {
@@ -200,7 +207,8 @@
     {
       "id": "point_light_4",
       "tags": [
-        "point_lights"
+        "point_light",
+        "light"
       ],
       "transform": {
         "translation": {
@@ -225,7 +233,8 @@
     {
       "id": "point_light_5",
       "tags": [
-        "point_lights"
+        "point_light",
+        "light"
       ],
       "transform": {
         "translation": {
@@ -250,7 +259,8 @@
     {
       "id": "point_light_6",
       "tags": [
-        "point_lights"
+        "point_light",
+        "light"
       ],
       "transform": {
         "translation": {
@@ -275,7 +285,8 @@
     {
       "id": "point_light_7",
       "tags": [
-        "point_lights"
+        "point_light",
+        "light"
       ],
       "transform": {
         "translation": {
@@ -300,7 +311,8 @@
     {
       "id": "spot_light_0",
       "tags": [
-        "spot_lights"
+        "spot_light",
+        "light"
       ],
       "transform": {
         "translation": {
@@ -334,7 +346,8 @@
     {
       "id": "spot_light_1",
       "tags": [
-        "spot_lights"
+        "spot_light",
+        "light"
       ],
       "transform": {
         "translation": {

@@ -34,7 +34,7 @@ public class DeferredRenderingSample {
     }
 
     private enum DisplayMode {
-        SCENE, ALBEDO, NORMALS, DEPTH, EMISSIVE, SHADOW, UNPROCESSED
+        SCENE, ALBEDO, NORMALS, DEPTH, EMISSIVE, OCCLUSION, SHADOW, UNPROCESSED
     }
 
     private static final class TestGame extends DefaultGame {
@@ -46,11 +46,13 @@ public class DeferredRenderingSample {
                 + "Display Normals : F4\n"
                 + "Display Depth : F5\n"
                 + "Display Emissive : F6\n"
-                + "Display Shadow Maps : F7\n"
-                + "Display Scene before post process : F8\n"
+                + "Display Occlusion : F7\n"
+                + "Display Shadow Maps : F8\n"
+                + "Display Scene before post process : F9\n"
                 + "Move camera : Z, Q, S, D, LCTRL, SPACE\n"
                 + "Advance time: 1, 2\n"
-                + "Toggle debug info: A";
+                + "Toggle debug info: A\n"
+                + "Toggle lights: E";
 
         private int width;
         private int height;
@@ -75,6 +77,7 @@ public class DeferredRenderingSample {
         private Sprite normalSprite;
         private Sprite depthSprite;
         private Sprite emissiveSprite;
+        private Sprite occlusionSprite;
         private List<Sprite> shadowMaps;
         private Sprite preProcessSprite;
         private int shadowMapIndex;
@@ -109,6 +112,7 @@ public class DeferredRenderingSample {
             normalSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(1)).build();
             depthSprite = Sprite.builder().texture(renderer.getGBuffer().getDepthTexture()).build();
             emissiveSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(2)).build();
+            occlusionSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(3)).build();
             shadowMaps = List.of(
                     Sprite.builder().texture(renderer.getCSMBuffer().get(0).getDepthTexture()).width(width).height(height).build(),
                     Sprite.builder().texture(renderer.getCSMBuffer().get(1).getDepthTexture()).width(width).height(height).build(),
@@ -135,11 +139,11 @@ public class DeferredRenderingSample {
         }
 
         private void addBuldModelToLights() {
-            scene.getObjectsByTag("point_lights").forEach(parent ->
+            scene.getObjectsByTag("point_light").forEach(parent ->
                     parent.getComponentOfType(PointLightComponent.class).ifPresent(point ->
                             createBulb(parent, point.getLight().getColor(), point.getLight().getIntensity(), pointBulb)));
 
-            scene.getObjectsByTag("spot_lights").forEach(parent ->
+            scene.getObjectsByTag("spot_light").forEach(parent ->
                     parent.getComponentOfType(SpotLightComponent.class).ifPresent(spot ->
                             createBulb(parent, spot.getLight().getColor(), spot.getLight().getIntensity(), spotBulb)));
         }
@@ -161,6 +165,7 @@ public class DeferredRenderingSample {
             rotateSun(time);
             toggleInstructions();
             toggleDebug();
+            toggleLights();
             selectDisplayMode();
             selectCameraMode();
         }
@@ -169,9 +174,11 @@ public class DeferredRenderingSample {
             if (Input.isKeyPressed(GLFW.GLFW_KEY_1) || Input.isKeyPressed(GLFW.GLFW_KEY_2)) {
                 final var speed = Input.isKeyPressed(GLFW.GLFW_KEY_1) ? 20 : -20;
                 scene.getObjectById("sun").ifPresent(sunObj -> {
-                    final var transform = new Transform()
-                            .setRotation(new Quaternionf().setAngleAxis(MathUtils.toRadians(speed * time.getElapsedTime()), 1f, 1f, 0f));
-                    sunObj.getLocalTransform().transform(transform);
+                    if (sunObj.isEnabled()) {
+                        final var transform = new Transform()
+                                .setRotation(new Quaternionf().setAngleAxis(MathUtils.toRadians(speed * time.getElapsedTime()), 1f, 1f, 0f));
+                        sunObj.getLocalTransform().transform(transform);
+                    }
                 });
             }
         }
@@ -188,6 +195,12 @@ public class DeferredRenderingSample {
             }
         }
 
+        private void toggleLights() {
+            if (Input.wasKeyPressed(GLFW.GLFW_KEY_E)) {
+                scene.getObjectsByTag("light").forEach(obj -> obj.setEnabled(!obj.isEnabled()));
+            }
+        }
+
         private void selectDisplayMode() {
             if (Input.wasKeyPressed(GLFW.GLFW_KEY_F2)) {
                 displayMode = DisplayMode.SCENE;
@@ -200,13 +213,15 @@ public class DeferredRenderingSample {
             } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_F6)) {
                 displayMode = DisplayMode.EMISSIVE;
             } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_F7)) {
+                displayMode = DisplayMode.OCCLUSION;
+            } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_F8)) {
                 if (displayMode == DisplayMode.SHADOW) {
                     shadowMapIndex = (shadowMapIndex + 1) % 4;
                 } else {
                     displayMode = DisplayMode.SHADOW;
                     shadowMapIndex = 0;
                 }
-            } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_F8)) {
+            } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_F9)) {
                 displayMode = DisplayMode.UNPROCESSED;
             }
         }
@@ -237,6 +252,8 @@ public class DeferredRenderingSample {
                 spritebatch.render(normalSprite);
             } else if (displayMode == DisplayMode.EMISSIVE) {
                 spritebatch.render(emissiveSprite);
+            } else if (displayMode == DisplayMode.OCCLUSION) {
+                spritebatch.render(occlusionSprite);
             } else if (displayMode == DisplayMode.UNPROCESSED) {
                 spritebatch.render(preProcessSprite);
             } else if (displayMode == DisplayMode.SHADOW) {
