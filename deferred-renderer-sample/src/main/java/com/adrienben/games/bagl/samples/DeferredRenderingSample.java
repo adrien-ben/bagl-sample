@@ -34,7 +34,7 @@ public class DeferredRenderingSample {
     }
 
     private enum DisplayMode {
-        SCENE, ALBEDO, NORMALS, DEPTH, EMISSIVE, OCCLUSION, SHADOW, UNPROCESSED
+        SCENE, ALBEDO, NORMALS, DEPTH, EMISSIVE, OCCLUSION, ROUGHNESS, METALLIC, SHADOW, UNPROCESSED
     }
 
     private static final class TestGame extends DefaultGame {
@@ -48,6 +48,8 @@ public class DeferredRenderingSample {
                 + "Display Emissive : F6\n"
                 + "Display Occlusion : F7\n"
                 + "Display Shadow Maps : F8\n"
+                + "Display Roughness : R\n"
+                + "Display Metallic : M\n"
                 + "Display Scene before post process : F9\n"
                 + "Move camera : Z, Q, S, D, LCTRL, SPACE\n"
                 + "Advance time: 1, 2\n"
@@ -71,6 +73,7 @@ public class DeferredRenderingSample {
 
         private Spritebatch spritebatch;
         private Shader depthBufferViewerShader;
+        private Shader alphaChannelViewerShader;
 
         private DisplayMode displayMode = DisplayMode.SCENE;
         private Sprite albedoSprite;
@@ -107,6 +110,8 @@ public class DeferredRenderingSample {
             spritebatch = new Spritebatch(1024, width, height);
             depthBufferViewerShader = Shader.builder().vertexPath(ResourcePath.get("classpath:/shaders/sprite/sprite.vert"))
                     .fragmentPath(ResourcePath.get("classpath:/depth_buffer_viewer.frag")).build();
+            alphaChannelViewerShader = Shader.builder().vertexPath(ResourcePath.get("classpath:/shaders/sprite/sprite.vert"))
+                    .fragmentPath(ResourcePath.get("classpath:/alpha_channel_viewer.frag")).build();
 
             albedoSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(0)).build();
             normalSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(1)).build();
@@ -131,6 +136,7 @@ public class DeferredRenderingSample {
             spotBulb.destroy();
             spritebatch.destroy();
             depthBufferViewerShader.destroy();
+            alphaChannelViewerShader.destroy();
         }
 
         private void loadMeshes() {
@@ -223,6 +229,10 @@ public class DeferredRenderingSample {
                 }
             } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_F9)) {
                 displayMode = DisplayMode.UNPROCESSED;
+            } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_R)) {
+                displayMode = DisplayMode.ROUGHNESS;
+            } else if (Input.wasKeyPressed(GLFW.GLFW_KEY_SEMICOLON)) {
+                displayMode = DisplayMode.METALLIC;
             }
         }
 
@@ -266,6 +276,14 @@ public class DeferredRenderingSample {
                 final var camera = scene.getObjectById("camera").orElseThrow().getComponentOfType(CameraComponent.class).orElseThrow().getCamera();
                 setUniformsForDepthBufferViewer(camera.getzNear(), camera.getzFar());
                 spritebatch.render(depthSprite);
+            }
+            spritebatch.end();
+
+            spritebatch.start(alphaChannelViewerShader);
+            if (displayMode == DisplayMode.ROUGHNESS) {
+                spritebatch.render(albedoSprite);
+            } else if (displayMode == DisplayMode.METALLIC) {
+                spritebatch.render(normalSprite);
             }
             spritebatch.end();
         }
