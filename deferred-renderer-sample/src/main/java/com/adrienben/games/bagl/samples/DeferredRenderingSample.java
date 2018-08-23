@@ -5,6 +5,7 @@ import com.adrienben.games.bagl.core.io.ResourcePath;
 import com.adrienben.games.bagl.core.math.MathUtils;
 import com.adrienben.games.bagl.deferred.PBRDeferredSceneRenderer;
 import com.adrienben.games.bagl.engine.*;
+import com.adrienben.games.bagl.engine.animation.Animation;
 import com.adrienben.games.bagl.engine.game.DefaultGame;
 import com.adrienben.games.bagl.engine.rendering.Material;
 import com.adrienben.games.bagl.engine.rendering.model.Mesh;
@@ -26,6 +27,7 @@ import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+import java.util.Optional;
 
 public class DeferredRenderingSample {
 
@@ -54,7 +56,8 @@ public class DeferredRenderingSample {
                 + "Move camera : Z, Q, S, D, LCTRL, SPACE\n"
                 + "Advance time: 1, 2\n"
                 + "Toggle debug info: A\n"
-                + "Toggle lights: E";
+                + "Toggle lights: E\n"
+                + "Toggle animation: P (Animated models only)";
 
         private int width;
         private int height;
@@ -174,6 +177,8 @@ public class DeferredRenderingSample {
             toggleLights();
             selectDisplayMode();
             selectCameraMode();
+            resetModelAnimation();
+            toggleModelAnimation();
         }
 
         private void rotateSun(final Time time) {
@@ -245,6 +250,24 @@ public class DeferredRenderingSample {
                     Input.setMouseMode(MouseMode.NORMAL);
                 }
             }
+        }
+
+        private void toggleModelAnimation() {
+            if (Input.wasKeyPressed(GLFW.GLFW_KEY_P)) {
+                getModelById("model").ifPresent(model -> model.getAnimations().stream().findFirst().ifPresent(Animation::toggle));
+            }
+        }
+
+        private void resetModelAnimation() {
+            if (Input.wasKeyPressed(GLFW.GLFW_KEY_O)) {
+                getModelById("model").ifPresent(model -> model.getAnimations().stream().findFirst().ifPresent(Animation::reset));
+            }
+        }
+
+        private Optional<Model> getModelById(final String id) {
+            return scene.getObjectById(id)
+                    .flatMap(gameObject -> gameObject.getComponentOfType(ModelComponent.class))
+                    .map(ModelComponent::getModel);
         }
 
         @Override
