@@ -1,5 +1,5 @@
 module bagl.deferred.renderer.sample {
-    requires com.adrienben.games.bagl.deferred;
+    requires com.adrienben.games.bagl.renderer;
 
     opens envmaps;
     opens fonts.segoe;

@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.adrienben.games</groupId>
-            <artifactId>bagl-deferred</artifactId>
+            <artifactId>bagl-renderer</artifactId>
             <version>${bagl.version}</version>
         </dependency>
     </dependencies>

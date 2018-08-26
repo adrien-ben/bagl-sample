@@ -3,11 +3,10 @@ package com.adrienben.games.bagl.samples;
 import com.adrienben.games.bagl.core.Color;
 import com.adrienben.games.bagl.core.io.ResourcePath;
 import com.adrienben.games.bagl.core.math.MathUtils;
-import com.adrienben.games.bagl.deferred.PBRDeferredSceneRenderer;
 import com.adrienben.games.bagl.engine.*;
 import com.adrienben.games.bagl.engine.animation.Animation;
 import com.adrienben.games.bagl.engine.game.DefaultGame;
-import com.adrienben.games.bagl.engine.rendering.Material;
+import com.adrienben.games.bagl.engine.rendering.material.Material;
 import com.adrienben.games.bagl.engine.rendering.model.Mesh;
 import com.adrienben.games.bagl.engine.rendering.model.MeshFactory;
 import com.adrienben.games.bagl.engine.rendering.model.Model;
@@ -23,6 +22,7 @@ import com.adrienben.games.bagl.engine.scene.components.ModelComponent;
 import com.adrienben.games.bagl.engine.scene.components.PointLightComponent;
 import com.adrienben.games.bagl.engine.scene.components.SpotLightComponent;
 import com.adrienben.games.bagl.opengl.shader.Shader;
+import com.adrienben.games.bagl.renderer.PBRSceneRenderer;
 import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 
@@ -63,7 +63,7 @@ public class DeferredRenderingSample {
         private int height;
 
         private TextRenderer textRenderer;
-        private PBRDeferredSceneRenderer renderer;
+        private PBRSceneRenderer renderer;
 
         private Font font;
 
@@ -99,11 +99,11 @@ public class DeferredRenderingSample {
             height = Configuration.getInstance().getYResolution();
 
             textRenderer = new TextRenderer();
-            renderer = new PBRDeferredSceneRenderer();
-
-            font = getAssetStore().getAsset("segoe", Font.class);
+            renderer = new PBRSceneRenderer();
 
             scene = getAssetStore().getAsset("main_scene", Scene.class);
+            font = getAssetStore().getAsset("segoe", Font.class);
+
             loadMeshes();
             addBuldModelToLights();
 
@@ -111,16 +111,16 @@ public class DeferredRenderingSample {
             instructionsText = Text.create(INSTRUCTIONS, font, 0.01f, 0.94f, 0.03f, Color.BLACK);
 
             spritebatch = new Spritebatch(1024, width, height);
-            depthBufferViewerShader = Shader.builder().vertexPath(ResourcePath.get("classpath:/shaders/sprite/sprite.vert"))
+            depthBufferViewerShader = Shader.pipelineBuilder().vertexPath(ResourcePath.get("classpath:/shaders/sprite/sprite.vert"))
                     .fragmentPath(ResourcePath.get("classpath:/depth_buffer_viewer.frag")).build();
-            alphaChannelViewerShader = Shader.builder().vertexPath(ResourcePath.get("classpath:/shaders/sprite/sprite.vert"))
+            alphaChannelViewerShader = Shader.pipelineBuilder().vertexPath(ResourcePath.get("classpath:/shaders/sprite/sprite.vert"))
                     .fragmentPath(ResourcePath.get("classpath:/alpha_channel_viewer.frag")).build();
 
-            albedoSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(0)).build();
-            normalSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(1)).build();
+            albedoSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture()).build();
+            normalSprite = Sprite.builder().texture(renderer.getGBuffer().getNormalTexture()).build();
             depthSprite = Sprite.builder().texture(renderer.getGBuffer().getDepthTexture()).build();
-            emissiveSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(2)).build();
-            occlusionSprite = Sprite.builder().texture(renderer.getGBuffer().getColorTexture(3)).build();
+            emissiveSprite = Sprite.builder().texture(renderer.getGBuffer().getEmissiveTexture()).build();
+            occlusionSprite = Sprite.builder().texture(renderer.getGBuffer().getOcclusionTexture()).build();
             shadowMaps = List.of(
                     Sprite.builder().texture(renderer.getCSMBuffer().get(0).getDepthTexture()).width(width).height(height).build(),
                     Sprite.builder().texture(renderer.getCSMBuffer().get(1).getDepthTexture()).width(width).height(height).build(),
