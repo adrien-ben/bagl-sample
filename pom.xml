@@ -18,6 +18,7 @@
         <module>spritebatch-sample</module>
         <module>text-sample</module>
         <module>ui-sample</module>
+        <module>compute-shader-sample</module>
     </modules>
 
     <properties>

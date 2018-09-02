@@ -1,0 +1,115 @@
+#version 430
+
+struct Vertex {
+    vec3 position;
+    float pad4;
+};
+
+struct Particle {
+    vec3 velocity;
+    float ttl;
+};
+
+struct Emitter {
+    vec3 position;
+    int batchSize;
+    bool isEmitting;
+};
+
+const float G = 9.81;
+const int MAX_VELOCITY = 50;
+
+layout (local_size_x = 1024) in;
+
+// read buffers
+layout(std140, binding = 0) readonly buffer ReadVertexBuffer {
+    Vertex readVertices[];
+};
+
+layout(std140, binding = 1) readonly buffer ReadParticleBuffer {
+    Particle readParticle[];
+};
+
+// write buffer
+layout(std140, binding = 2) writeonly buffer WriteVertexBuffer {
+    Vertex writeVertices[];
+};
+
+layout(std140, binding = 3) writeonly buffer WriteParticleBuffer {
+    Particle writeParticle[];
+};
+
+layout(binding = 0) uniform atomic_uint nextAliveParticle;
+layout(binding = 1) uniform atomic_uint nextDeadParticle;
+layout(binding = 2) uniform atomic_uint emittedParticles;
+
+uniform float uDelta;
+uniform vec3 uCenterOfMass;
+uniform bool uHasGravity;
+uniform Emitter uEmitter;
+
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+void updateParticle(Vertex currentVertex, Particle currentParticle) {
+    uint nextParticleIndex = atomicCounterIncrement(nextAliveParticle);
+    vec3 newVelocity = currentParticle.velocity*0.98;
+    if(uHasGravity) {
+        vec3 acceleration = normalize(uCenterOfMass - currentVertex.position)*G;
+        newVelocity = clamp(currentParticle.velocity + acceleration*uDelta, -MAX_VELOCITY, MAX_VELOCITY);
+    }
+    vec3 newPosition = currentVertex.position + newVelocity*uDelta;
+    float newTtl = currentParticle.ttl - uDelta;
+    writeParticle[nextParticleIndex].velocity = newVelocity;
+    writeParticle[nextParticleIndex].ttl = newTtl;
+    writeVertices[nextParticleIndex].position = newPosition;
+}
+
+void addDeadParticle() {
+    uint nextParticleIndex = atomicCounterDecrement(nextDeadParticle);
+    writeParticle[nextParticleIndex].velocity = vec3(0);
+    writeParticle[nextParticleIndex].ttl = 0;
+    writeVertices[nextParticleIndex].position = vec3(0);
+}
+
+void emitParticle() {
+    float speed = rand(gl_GlobalInvocationID.xx)*2 + 20;
+    vec3 newDirection = normalize(vec3(
+          rand(gl_GlobalInvocationID.xx)*2 -1,
+          rand(gl_GlobalInvocationID.xy)*2 -1,
+          rand(gl_GlobalInvocationID.yx)*2 -1
+    ));
+
+    vec3 newPosition = vec3(
+        rand(gl_GlobalInvocationID.xy)*2 -1,
+        rand(gl_GlobalInvocationID.xx)*2 -1,
+        rand(gl_GlobalInvocationID.yx)*2 -1
+    );
+
+    float newTtl = rand(gl_GlobalInvocationID.yx)*5 + 15;
+
+    uint nextParticleIndex = atomicCounterIncrement(nextAliveParticle);
+    writeParticle[nextParticleIndex].velocity = newDirection*speed;
+    writeParticle[nextParticleIndex].ttl = newTtl;
+    writeVertices[nextParticleIndex].position = uEmitter.position + newPosition;
+}
+
+void main() {
+    uint readIndex = gl_GlobalInvocationID.x;
+    Vertex currentVertex = readVertices[readIndex];
+    Particle currentParticle = readParticle[readIndex];
+
+    if(currentParticle.ttl > 0) {
+        updateParticle(currentVertex, currentParticle);
+    } else if(!uEmitter.isEmitting) {
+        addDeadParticle();
+    } else {
+        uint emittedParticleNumber = atomicCounterIncrement(emittedParticles);
+        if(emittedParticleNumber < uEmitter.batchSize) {
+            emitParticle();
+        } else {
+            addDeadParticle();
+        }
+    }
+}
