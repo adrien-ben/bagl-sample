@@ -32,9 +32,6 @@ public class ParticleData {
     private FloatBuffer initVertices() {
         final var positions = MemoryUtil.memAllocFloat(4*PARTICLE_COUNT);
         MemoryUtil.memSet(positions, 0);
-        for (int i = 0; i < PARTICLE_COUNT; i++) {
-            positions.put(4*i + 3, 1.0f);
-        }
         return positions;
     }
 

@@ -22,20 +22,20 @@ const int MAX_VELOCITY = 50;
 layout (local_size_x = 1024) in;
 
 // read buffers
-layout(std140, binding = 0) readonly buffer ReadVertexBuffer {
+layout(std430, binding = 0) readonly buffer ReadVertexBuffer {
     Vertex readVertices[];
 };
 
-layout(std140, binding = 1) readonly buffer ReadParticleBuffer {
+layout(std430, binding = 1) readonly buffer ReadParticleBuffer {
     Particle readParticle[];
 };
 
 // write buffer
-layout(std140, binding = 2) writeonly buffer WriteVertexBuffer {
+layout(std430, binding = 2) writeonly buffer WriteVertexBuffer {
     Vertex writeVertices[];
 };
 
-layout(std140, binding = 3) writeonly buffer WriteParticleBuffer {
+layout(std430, binding = 3) writeonly buffer WriteParticleBuffer {
     Particle writeParticle[];
 };
 
