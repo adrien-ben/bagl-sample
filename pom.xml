@@ -22,7 +22,7 @@
     </modules>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>12</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Dependencies versions -->
         <bagl.version>0.0.6</bagl.version>
@@ -37,8 +37,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
         </plugins>
