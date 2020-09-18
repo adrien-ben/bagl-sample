@@ -43,21 +43,22 @@ public class DeferredRenderingSample {
 
         private static final String TITLE = "Deferred Rendering";
 
-        private static final String INSTRUCTIONS = "Display scene : F2\n"
-                + "Display Albedo : F3\n"
-                + "Display Normals : F4\n"
-                + "Display Depth : F5\n"
-                + "Display Emissive : F6\n"
-                + "Display Occlusion : F7\n"
-                + "Display Shadow Maps : F8\n"
-                + "Display Roughness : R\n"
-                + "Display Metallic : M\n"
-                + "Display Scene before post process : F9\n"
-                + "Move camera : Z, Q, S, D, LCTRL, SPACE\n"
-                + "Advance time: 1, 2\n"
-                + "Toggle debug info: A\n"
-                + "Toggle lights: E\n"
-                + "Toggle animation: P (Animated models only)";
+        private static final String INSTRUCTIONS = """
+                Display scene : F2
+                Display Albedo : F3
+                Display Normals : F4
+                Display Depth : F5
+                Display Emissive : F6
+                Display Occlusion : F7
+                Display Shadow Maps : F8
+                Display Roughness : R
+                Display Metallic : M
+                Display Scene before post process : F9
+                Move camera : Z, Q, S, D, LCTRL, SPACE
+                Advance time: 1, 2
+                Toggle debug info: A
+                Toggle lights: E
+                Toggle animation: P (Animated models only)""";
 
         private int width;
         private int height;
