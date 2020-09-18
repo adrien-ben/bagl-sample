@@ -4,7 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.adrienben.games</groupId>
+    <parent>
+        <groupId>com.adrienben.games</groupId>
+        <artifactId>bagl-parent</artifactId>
+        <version>0.0.6</version>
+    </parent>
+
     <artifactId>bagl-samples</artifactId>
     <version>0.0.6</version>
     <packaging>pom</packaging>
@@ -20,27 +25,5 @@
         <module>ui-sample</module>
         <module>compute-shader-sample</module>
     </modules>
-
-    <properties>
-        <java.version>14</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Dependencies versions -->
-        <bagl.version>0.0.6</bagl.version>
-        <!-- Plugins versions -->
-        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
-    </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
-                <configuration>
-                    <release>${java.version}</release>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
